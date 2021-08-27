@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+">
+    <!--整合mybatis-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="user" value="root"></property>
+        <property name="password" value="yang123456"></property>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/test?useUnicode=true$amp;characterEncoding=utf-8"></property>
+        <property name="driverClass" value="com.mysql.cj.jdbc.Driver"></property>
+        <!--由于是c3p0数据库连接池，所以还需要进行一些额外的配置-->
+        <property name="initialPoolSize" value="5"></property>
+        <property name="maxPoolSize" value="10"></property>
+    </bean>
+
+    <!--配置MyBatis SqlSessionFactory-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--将上面的数据源整合到SqlSessionFactory的bean中。使用ref属性-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--指定好mybatis所需的mapper文件目录-->
+        <property name="mapperLocations" value="classpath:com/yang/repository/*.xml"/>
+        <property name="configLocation" value="classpath:config.xml"></property>
+    </bean>
+
+    <!--扫描自定义的mapper接口-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--配置之后repository包中的所有接口都会被扫描到了，再结合上面的配置文件（config.xml），mapper就会自动生成代理对象了-->
+        <property name="basePackage" value="com.yang.repository"></property>
+    </bean>
+<!--到这里，spring.xml中配置spring和mybatis的整合到这里就结束了。另外的一些Mybatis辅助信息，比如打印SQL语句都在config.xml中配置-->
+
+</beans>

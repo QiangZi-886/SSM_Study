@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http//mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--mybatis的使用，每个实体类都需要创建相应的mapper.xml文件来第SQL语句进行管理-->
+<mapper namespace="com.yang.mapper.AccountMapper">
+
+    <insert id="save" parameterType="com.yang.entity.Account"><!--mybatis将对数据库的操作转化为面向对象的操作，这里的type就是传入的类型，指定为Account即可-->
+        insert into t_account(username,password,age) values(#{username},#{password},#{age})
+    </insert>
+
+</mapper>

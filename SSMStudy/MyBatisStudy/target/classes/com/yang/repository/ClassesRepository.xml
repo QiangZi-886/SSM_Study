@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http//mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yang.repository.ClassesRepository">
+
+    <resultMap id="classesMap" type="com.yang.entity.Classes">
+        <id column="cid" property="id"></id>
+        <result column="cname" property="name"></result>
+        <!--Classes中最后一个的成员变量是List集合，之前的association只能映射一个对象，现在需要是用collection标签映射多个对象-->
+        <collection property="students" ofType="com.yang.entity.Student">
+            <id column="id" property="id"></id>
+            <result column="name" property="name"></result>
+        </collection>
+    </resultMap>
+    <!--注意resultMap标签的使用，在使用上面resultMap的时候，对应的下面的select语句的引用也要更改为resultMap，否则就会报错-->
+    <select id="findById" parameterType="int" resultMap="classesMap">
+        select s.id,s.name,c.id as cid,c.name as cname from student s,class c where c.id = #{id} and s.sid = c.id
+    </select>
+
+    <select id="findByIdLazy" parameterType="int" resultType="com.yang.entity.Classes">
+        select * from class where id = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http//mybatis.org/dtd/mybatis-3-config.dtd">
+<!--Mybatis配置文件 , 不需要web环境，所以不需要在web.xml中进行mybatis的配置-->
+<configuration>
+    <settings>
+        <!--打印SQL语句-->
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+    </settings>
+
+    <typeAliases>
+        <!--指定一个包名，mybatis会在指定包名下搜索需要的javabean-->
+        <package name="com.yang.entity"/>
+    </typeAliases>
+</configuration>

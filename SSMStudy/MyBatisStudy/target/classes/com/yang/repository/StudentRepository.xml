@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http//mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yang.repository.StudentRepository">
+    <resultMap id="studentMap" type="com.yang.entity.Student">
+        <id column="id" property="id"></id><!--id 写的是主键-->
+        <result column="name" property="name"></result><!--其他字段都是用result-->
+        <result column="sid" property="sid"></result>
+        <association property="classes" javaType="com.yang.entity.Classes"><!--专门用来写一个类中映射有另一个类的标签-->
+            <id column="cid" property="id"></id>
+            <result column="cname" property="name"></result>
+        </association>
+    </resultMap>
+    <select id="findById" parameterType="int" resultMap="studentMap">
+        select s.id,s.name,c.id as cid,c.name as cname from class c,student s where s.id = #{id} and s.sid = c.id
+    </select>
+
+    <!--Mybatis延迟加载
+        所谓延迟加载，原先的级联查询，每次都需要查询两张表格，如果我们只想要学生表中对应的姓名，那么上述的方式就会浪费资源，所以就有了延迟加载，
+        将 多表关联查询拆分成多个单表查询，根据需要手动来进行sql语句的调用，其中student表与class表相关联，将其关联的数据库信息做好配置即可
+    -->
+    <resultMap id="studentMapLazy" type="com.yang.entity.Student">
+        <id column="id" property="id"></id><!--id 写的是主键-->
+        <result column="name" property="name"></result><!--其他字段都是用result-->
+        <result column="sid" property="sid"></result>
+        <!--在延迟加载中，就是将sql语句拆分开来，查询到的学生表中的sid需要将其传到class，并依靠sid查询到对应的班级信息-->
+        <association property="classes" javaType="com.yang.entity.Classes" select="com.yang.repository.ClassesRepository.findByIdLazy" column="sid">
+        </association>
+    </resultMap>
+    <select id="findByIdLazy" parameterType="int" resultMap="studentMapLazy">
+        select * from student where id = #{id}
+    </select>
+</mapper>

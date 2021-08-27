@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--在进行框架配置的时候，可以使用xml的方式，也可以使用注解的方式
+
+    -->
+
+
+    <!--根据属性值设置的时候，name名称取决于set方法后面的参数首字母小写的名称-->
+    <bean id="person" class="com.yang.bean.Person">
+        <property name="id" value="1"></property>
+        <property name="name" value="yang"></property>
+        <property name="age" value="21"></property>
+        <property name="gender" value="man"></property>
+    </bean>
+    <!--使用构造器方法赋值的时候，参数name属性是由构造方法的参数列表决定的。
+    注意！！使用构造器赋值时，一定把空参构造方法一起写上，不然就会报错。因为底层是使用反射来进行一个实现的，反射会调用空参构造方法。
+
+    name表示参数列表的名称
+    value表示实际的具体值
+    type表示值的类型
+    index表示值的下标，从0开始
+    -->
+    <bean id="person2" class="com.yang.bean.Person">
+        <constructor-arg name="id" value="2"></constructor-arg>
+        <constructor-arg name="name" value="yang2"></constructor-arg>
+        <constructor-arg name="age" value="20"></constructor-arg>
+        <constructor-arg name="gender" value="男"></constructor-arg>
+    </bean>
+
+    <!--当通过构造器方法父子的时候，有更加简洁的写法：省略掉name属性不写。
+    但是注意！！！必须保证参数值跟构造方法中的参数列表的顺序一致，当改变下面的参数赋值顺序的时候，就会将错误的信息添加到原来的属性中去
+
+    如果非要不一致的话，可以通过index的下标方式来标注，从0开始
+    -->
+    <bean id="person3" class="com.yang.bean.Person">
+        <constructor-arg value="3"></constructor-arg>
+        <constructor-arg value="波西"></constructor-arg>
+        <constructor-arg value="21"></constructor-arg>
+        <constructor-arg value="男"></constructor-arg>
+    </bean>
+
+    <!--当有多个相同参数的构造方法存在时，默认情况下时候覆盖的过程，后面的构造方法会覆盖掉前面的构造方法
+    如果非要赋值给另外一个构造方法的话，可以使用type的参数来指定，使用方法“type="属性的类型"”。
+    但是需要注意，当前属性的类型必须要有区分度，例如想要把下面的22赋值给age，使用type="int",这句会把22赋值给id(int)属性（因为type不具有自动装箱拆箱的能力）
+    所以需要更改age属性为Integer之后，再使用type="java.lang.Integer"指定属性赋值给age
+
+    -->
+    <bean id="person4" class="com.yang.bean.Person">
+        <constructor-arg value="4"></constructor-arg>
+        <constructor-arg value="谐星"></constructor-arg>
+        <constructor-arg value="22"></constructor-arg>
+    </bean>
+
+    <!--总结：在日常的工作使用中，一般都是使用name value的方式，很少有人去使用type、index的方式，但是要注意各种情况出现的问题-->
+
+
+
+    <!--使用p命名空间来给属性赋值-->
+    <bean id="person5" class="com.yang.bean.Person" p:id="5" p:name="尼古拉斯" p:age="40" p:gender="男">
+    </bean>
+
+    <!--给复杂类型赋值！！！-->
+    <bean id="person6" class="com.yang.bean.Person">
+        <property name="id" value="6"></property>
+        <property name="name" value="yang6"></property>
+        <property name="age" value="21"></property>
+        <property name="gender" value="man6"></property>
+<!--        &lt;!&ndash;spring内部会自动将字符串数组的value值进行操作，不会被看做是一个字符串，但是这种方式不是很友好&ndash;&gt;-->
+<!--        <property name="hobbies" value="book,girls,game"></property>-->
+        <!--给数组赋值  使用的是array标签-->
+        <property name="hobbies">
+            <array>
+                <value>book</value>
+                <value>girls</value>
+                <value>games</value>
+            </array>
+        </property>
+
+        <!--给引用类型赋值 可以使用ref引入外部bean-->
+        <property name="address" ref="Address"></property>
+        <!--给lists赋值-->
+<!--        <property name="lists" value="1,2,3"></property>-->
+        <property name="lists">
+            <list>
+            <!--使用内部bean 无法从IOC容器中直接获取对象的值-->
+            <bean class="com.yang.bean.Address">
+                <property name="province" value="河南"></property>
+                <property name="city" value="新乡"></property>
+                <property name="town" value="河南工学院"></property>
+            </bean>
+            <bean class="com.yang.bean.Address">
+                <property name="province" value="杭州"></property>
+            </bean>
+            <!--使用外部bean 可以随意从IOC容器中直接获取对象的值-->
+            <ref bean="Address"></ref>
+            </list>
+        </property>
+
+        <!--给set属性赋值-->
+        <property name="sets">
+            <set>
+                <!--set集合中的元素时唯一的，即使加入相同的元素，到最后也是只打印一个-->
+                <value>张三</value>
+                <value>张三</value>
+                <value>李四</value>
+            </set>
+        </property>
+
+        <property name="maps">
+            <map>
+                <entry key="a" value="aaa"></entry>
+                <entry key="address" value-ref="Address"></entry>
+                <entry key="address2">
+                    <bean class="com.yang.bean.Address">
+                        <property name="province" value="武汉"></property>
+                    </bean>
+                </entry>
+            </map>
+        </property>
+
+        <!--给properties赋值-->
+        <property name="properties">
+            <props>
+                <prop key="1">111</prop>
+                <prop key="a">aaa</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!--因为address类是没有值的，所以需要在这里另外使用bean标签给address赋值-->
+    <bean id="Address" class="com.yang.bean.Address">
+        <property name="province" value="河南省"></property>
+        <property name="city" value="信阳"></property>
+        <property name="town" value="桃林"></property>
+    </bean>
+
+    <!--bean之间的继承关系  在bean的继承关系中，如果不需要父类实现实例化的情况下，可以使用abstract属性-->
+    <bean id="parent" class="com.yang.bean.Person" abstract="true">
+        <property name="id" value="123"></property>
+        <property name="name" value="父亲"></property>
+        <property name="age" value="30"></property>
+        <property name="gender" value="男"></property>
+    </bean>
+
+    <!--可以通过parent属性来获取父类bean中的某些属性值-->
+    <bean id="son" class="com.yang.bean.Person" parent="parent">
+        <property name="name" value="儿子"></property>
+    </bean>
+
+    <!--设置bean对象的作用域
+    通过scope属性可以指定当前bean的作用域
+    singleton：单例模式，从IOC容器中获取的都是同一对象，默认的作用域
+    prototype：多例模式，从IOC容器中获取的对象，每次都是新创建的
+
+    在spring4.x版本中还包括另外两种作用域
+    request：每次发送请求都会有一个新的对象
+    session：每次会话都会有一个新的对象
+             几乎不用，因此在5版本的时候被淘汰了
+    注意：
+        如果是singleton作用域的话，每次在创建IOC容器完成之前，此对象已经创建完成
+        如果是prototype作用域的话，每次是在需要用到此对象的时候才会创建（可以在无参构造方法中输出一句话来进行测试）
+
+    -->
+<!--    <bean id="person7" class="com.yang.bean.Person" scope="singleton"></bean>-->
+    <!--利用工厂模式创建bean-->
+    <!--静态工厂：类名.方法-->
+    <bean id="person7" class="com.yang.factory.PersonStaticFactory" factory-method="getInstance">
+        <constructor-arg value="杨7"></constructor-arg>
+    </bean>
+    <!--实例工厂：先创建工厂，然后调用工厂实例的方法
+        factory-bean表示具体工厂类的实例
+        factory-method表示具体工厂实例的方法
+
+    -->
+    <bean id="instanceFactory" class="com.yang.factory.PersonInstanceFactory"></bean>
+    <bean id="person8" class="com.yang.bean.Person" factory-bean="instanceFactory" factory-method="getInstance">
+        <constructor-arg value="杨8"></constructor-arg>
+    </bean>
+
+    <bean id="myFactoryBean" class="com.yang.factory.MyFactoryBean"></bean>
+
+    <!--spring容器在创建对象的时候可以指定具体的初始化方法和销毁方法
+    init-method:在对象创建完成之后会调用初始化方法
+    destroy-method：在IOC容器关闭的时候会调用销毁方法
+    -->
+    <bean id="person9" class="com.yang.bean.Person" init-method="init" destroy-method="destroy"></bean>
+</beans>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http//mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yang.repository.BookRepository">
+    <select id="findAll" resultType="Book">
+        select * from t_book
+    </select>
+
+    <select id="findByBook" resultType="Book" parameterType="Book">
+        select * from t_book
+        <trim prefix="where" prefixOverrides="and">
+            <if test="id!=0">
+                id = #{id}
+            </if>
+            <if test="bookname!=null">
+                bookname = #{bookname}
+            </if>
+            <if test="bookprice!=0">
+                bookprice = #{bookprice}
+            </if>
+        </trim>
+    </select>
+
+    <select id="findById" resultType="Book" parameterType="int">
+        select * from t_book where id = #{id}
+    </select>
+
+    <insert id="save" parameterType="Book">
+        insert t_book(id,bookname,bookprice) values(#{id},#{bookname},#{bookprice})
+    </insert>
+
+    <update id="update" parameterType="Book">
+        update t_book set bookname = #{bookname},bookprice = #{bookprice} where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="int">
+        delete from t_book where id = #{id}
+    </delete>
+</mapper>

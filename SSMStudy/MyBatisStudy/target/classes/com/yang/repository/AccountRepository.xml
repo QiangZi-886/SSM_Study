@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http//mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yang.repository.AccountRepository">
+    <!--使用Mybatis自带的二级缓存。在Mapper中配置二级缓存，只需要添加一个cache标签即可,然后实体类中实现序列化接口
+        使用第三方二级缓存，需要先在pom.xml中导入依赖，然后配置ehcache.xml,在config.xml中开启二级缓存,在Mapper.xml中的cache标签
+        添加相关配置
+    -->
+    <cache type="org.mybatis.caches.ehcache.EhcacheCache">
+        <!--缓存创建之后，最后一次访问缓存的时间至缓存失效的时间间隔-->
+        <property name="timeToIdleSeconds" value="3600"></property>
+        <!--缓存自创建时间起至失效的时间间隔-->
+        <property name="timeToLiveSeconds" value="3600"/>
+        <!--缓存回收策略，LRU策略表示移除近期使用最少的对象-->
+        <property name="memoryStoreEvictionPolicy" value="LRU"/>
+    </cache>
+    <!--使用Mapper组件实现增删改查对于的xml文件的书写-->
+    <insert id="save" parameterType="com.yang.entity.Account">
+        insert into t_account(username,password,age) values(#{username},#{password},#{age})
+    </insert>
+<!--    <update id="update" parameterType="com.yang.entity.Account">
+        update t_account set username = #{username},password = #{password},age = #{age} where id = #{id}
+    </update>-->
+    <update id="update" parameterType="com.yang.entity.Account">
+        update t_account
+        <set>
+            <if test="username!=null">
+                username = #{username},
+            </if>
+            <if test="password!=null">
+                password = #{password},
+            </if>
+            <if test="age!=0">
+                age = #{age},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    
+    <delete id="deleteById" parameterType="long">
+        delete from t_account where id = #{id}
+    </delete>
+    <select id="findAll" resultType="com.yang.entity.Account"><!--这里直接指定的是java.utils.List集合中的Account类型，所以还是指定的是Account-->
+        select * from t_account
+    </select>
+    <select id="findById" parameterType="long" resultType="com.yang.entity.Account">
+        select * from t_account where id = #{id}
+    </select>
+
+    <select id="findByNameAndAge"  resultType="com.yang.entity.Account">
+        select * from t_account where username = #{param1} and age = #{param2}
+    </select>
+
+    <!--返回记录总数-->
+    <select id="count" resultType="int">
+        select count(id) from t_account
+    </select>
+
+    <select id="findNameById" parameterType="long" resultType="java.lang.String">
+        select username from t_account where id = #{id}
+    </select>
+    <!-- if where 标签的使用 -->
+<!--    <select id="findByAccount" parameterType="com.yang.entity.Account" resultType="com.yang.entity.Account">
+        select * from t_account
+        <where>&lt;!&ndash;where可以自动判断是否要删除语句块中的and关键字，如果检测到where和and直接连接，则删除and。通常情况下，if和where结合起来使用&ndash;&gt;
+            <if test="id!=0">&lt;!&ndash;if标签可以自动根据表达式结果来决定是否将对应的语句添加到SQL语句块中，如果条件不成立则不添加，条件成立则添加&ndash;&gt;
+                id = #{id}
+            </if>
+            <if test="username!=null">
+                and username = #{username}
+            </if>
+            <if test="password!=null">
+                and password = #{password}
+            </if>
+            <if test="age!=0">
+                and age = #{age}
+            </if>
+        </where>
+    </select>-->
+
+    <!-- choose标签的使用 -->
+<!--    <select id="findByAccount" parameterType="com.yang.entity.Account" resultType="com.yang.entity.Account">
+        select * from t_account
+        <where>
+            <choose>
+                <when test="id!=0">
+                    id = #{id}
+                </when>
+                <when test="username!=null">
+                    and username = #{username}
+                </when>
+                <when test="password!=null">
+                    and password = #{password}
+                </when>
+                <when test="age!=0">
+                    and age = #{age}
+                </when>
+            </choose>
+        </where>
+    </select>-->
+
+    <!-- trim标签的使用 -->
+    <select id="findByAccount" parameterType="com.yang.entity.Account" resultType="com.yang.entity.Account">
+        select * from t_account
+        <trim prefix="where" prefixOverrides="and"><!--如果and直接与prefix中的where直接连接，mybatis框架会自动将and删除-->
+            <if test="id!=0">
+                id = #{id}
+            </if>
+            <if test="username!=null">
+                and username = #{username}
+            </if>
+            <if test="password!=null">
+                and password = #{password}
+            </if>
+            <if test="age!=0">
+                and age = #{age}
+            </if>
+        </trim>
+    </select>
+
+    <!-- 正常的直接遍历返回多个对象 -->
+<!--    <select id="findByIds" parameterType="com.yang.entity.Account" resultType="com.yang.entity.Account">
+        select * from t_account where id in (1,2,3,16)
+    </select>-->
+
+    <select id="findByIds" parameterType="com.yang.entity.Account" resultType="com.yang.entity.Account">
+        select * from t_account
+        <where>
+            <!--collection指的是前面的成员变量ids，open是where后面语句的开始直至数据，close就是以什么作为结束，separator指的是其中数据以什么作为分隔-->
+            <foreach collection="ids" open="id in (" close=")" item="id" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+</mapper>

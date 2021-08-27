@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+
+    <!--整合mybatis-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="user" value="root"></property>
+        <property name="password" value="yang123456"></property>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/mybatis?useUnicode=true$amp;characterEncoding=utf-8"></property>
+        <property name="driverClass" value="com.mysql.cj.jdbc.Driver"></property>
+        <!--由于是c3p0数据库连接池，所以还需要进行一些额外的配置-->
+        <property name="initialPoolSize" value="5"></property>
+        <property name="maxPoolSize" value="10"></property>
+    </bean>
+
+    <!--配置mybatis SqlSessionFactory-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--将上面的数据源整合到SqlSessionFactory的bean中。使用ref属性-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--指定好mybatis所需的mapper文件目录-->
+        <property name="mapperLocations" value="classpath:com/yang/repository/*.xml"/>
+        <!--指定好mybatis的配置文件-->
+        <property name="configLocation" value="classpath:config.xml"></property>
+    </bean>
+
+    <!--扫描自定义的mapper接口-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--配置之后repository包中的所有接口都会被扫描到了，再结合上面的配置文件（config.xml），mapper就会自动生成代理对象了-->
+        <property name="basePackage" value="com.yang.repository"></property>
+    </bean>
+
+    <!--事务管理-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!--事务增强-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <!--增强结点-->
+        <tx:attributes>
+            <!--默认给所有方法都增强-->
+            <tx:method name="*"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <!--切入点表达式  expression是一个表达式，标签的值使用execution表达式，指向service中的所有类、所有方法，所有参数-->
+        <aop:pointcut id="txPoint" expression="execution(* com.yang.service.Impl.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPoint"></aop:advisor>
+    </aop:config>
+
+
+</beans>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="car" class="com.yang.entity.Car">
+        <property name="id" value="1"></property>
+        <property name="name" value="劳斯莱斯"></property>
+    </bean>
+
+    <!--通过autowire属性实现自动装载，byName会从当前的person对象中寻找需要注入的类型
+    person需要的外部依赖是car，所以在当前IoC容器中寻找id为Car的对象，并且自动装载到person对象中
+    -->
+    <bean id="person" class="com.yang.entity.Person" autowire="byName">
+        <property name="id" value="1"></property>
+        <property name="name" value="杨"></property>
+        <!--直接使用ref将car依赖注入到person中不属于自动装载，此种方式为手动装载-->
+<!--        <property name="car" ref="car"></property>-->
+    </bean>
+
+
+</beans>

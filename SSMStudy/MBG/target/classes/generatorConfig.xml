@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<!--配置Mybatis的逆向工程-->
+<generatorConfiguration>
+    <context id="testTables" targetRuntime="Mybatis3">
+        <!--配置数据库连接信息-->
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost:3306/mybatis?useUnicode=true&amp;characterEncoding=UTF-8"
+                        userId="root"
+                        password="yang123456"
+        />
+        <!--配置javabean的生成策略-->
+        <javaModelGenerator targetPackage="com.yang.entity" targetProject="./src/main/java"></javaModelGenerator>
+        <!--配置SQL映射文件生成策略-->
+        <sqlMapGenerator targetPackage="com.yang.repository" targetProject="./src/main/java"></sqlMapGenerator>
+        <!--配置Mapper接口生成策略-->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.yang.repository" targetProject="./src/main/java"/>
+        <!--table配置目标数据表（tableName:表名，domainObjectName：Javabean类名）-->
+        <table tableName="t_user" domainObjectName="User"></table>
+    </context>
+</generatorConfiguration>

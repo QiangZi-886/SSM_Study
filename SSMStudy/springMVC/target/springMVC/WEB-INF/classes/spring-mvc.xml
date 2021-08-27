@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+
+
+    <!--自动扫描   自动将相关组件扫描到IoC容器中-->
+    <context:component-scan base-package="com.yang"></context:component-scan>
+
+    <!--开启-->
+    <mvc:annotation-driven></mvc:annotation-driven>
+
+    <!--配置上传文件组件-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"></bean>
+
+    <!--配置自定义转换器-->
+    <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <list>
+                <bean class="com.yang.converter.DateConverter">
+                    <constructor-arg type="java.lang.String" value="yyyy-MM-dd"></constructor-arg>
+                </bean>
+                <bean class="com.yang.converter.StudentConverter"></bean>
+            </list>
+        </property>
+    </bean>
+
+
+    <mvc:annotation-driven conversion-service="conversionService" validator="accountValidator">
+        <!--消息转换器  解决服务器向客户端传递数据时的中文乱码问题-->
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="supportedMediaTypes" value="text/html;charset=UTF-8"></property>
+            </bean>
+            <!--配置fastjson 对json类型的user数据进行转换-->
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter"></bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+
+    <!--配置视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!--将逻辑视图解析成物理视图-->
+        <!--prefix前缀        suffix后缀-->
+        <property name="prefix" value="/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+
+    <bean id="accountValidator" class="com.yang.validator.AccountValidator"></bean>
+    <!--基于Validator的配置（没比要写很多annotation，所以加到上面的消息转换器中）-->
+<!--    <mvc:annotation-driven validator="accountValidator"></mvc:annotation-driven>-->
+
+    <!--专为Annotation JSR-303再次配置所需annotation-driven-->
+    <!--这里需要注意！！！！多重annotation会有冲突，所以尽量写到一起。不要有多余的annotation，这一个
+        在使用的时候打开就行了
+    -->
+<!--    <mvc:annotation-driven></mvc:annotation-driven>-->
+</beans>
